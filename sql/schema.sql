@@ -1,19 +1,24 @@
-CREATE TABLE user_table
+CREATE TABLE users
 (
-    usr_name CHAR(15) PRIMARY KEY,
-    usr_password CHAR(20)  NOT NULL
+    id INT AUTO_INCREMENT PRIMARY KEY
+    name VARCHAR(255),
+    password VARCHAR(255)  NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 );
 
-CREATE TABLE post_table
+CREATE TABLE posts
 (
-    post_id CHAR(10) PRIMARY KEY,
-    usr_name CHAR(15),
-    img_name CHAR(100)
+    id INT AUTO_INCREMENT PRIMARY KEY
+    user_id INT NOT NULL,
+    img_name VARCHAR(255),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE comment_table(
-    comment_id CHAR(10) PRIMARY KEY,
-    post_id CHAR(10),
-    usr_name CHAR(15),
-    comment_value CHAR(255)
+CREATE TABLE comments
+(
+    id INT AUTO_INCREMENT PRIMARY KEY
+    post_id INT NOT NULL,
+    user_id INT NOT NULL,
+    comment_body VARCHAR(255),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
