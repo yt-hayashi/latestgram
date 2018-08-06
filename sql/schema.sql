@@ -19,6 +19,6 @@ CREATE TABLE comments
     id INT AUTO_INCREMENT UNSIGNED PRIMARY KEY,
     post_id INT NOT NULL,
     user_id INT NOT NULL,
-    comment_body VARCHAR(255),
+    comment_body VARCHAR(256),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
