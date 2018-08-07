@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
-	"strconv"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -26,7 +25,7 @@ func main() {
 	addComment := 0
 	//ユーザーの追加
 	for i := 0; i < 10; i++ {
-		countUser := strconv.Itoa(i)
+		countUser := fmt.Sprintf("%d", i)
 		_, err := db.Exec(`
 		INSERT INTO users(name, password) VALUES(?, ?)`, "user"+countUser, "pass"+countUser)
 
@@ -38,7 +37,7 @@ func main() {
 
 	//postの追加
 	for i := 0; i < 100; i++ {
-		countPost := strconv.Itoa(i)
+		countPost := fmt.Sprintf("%d", i)
 		_, err := db.Exec(`
 		INSERT INTO posts(user_id, img_name) VALUES(?, ?)`, i, "img_"+countPost)
 
@@ -50,7 +49,7 @@ func main() {
 
 	//commentの追加
 	for i := 0; i < 50; i++ {
-		countComment := strconv.Itoa(i)
+		countComment := fmt.Sprintf("%d", i)
 		_, err := db.Exec(`
 		INSERT INTO comments(post_id, user_id, comment_body) VALUES(?, ?, ?)`, i, i, "This is comment"+countComment)
 
