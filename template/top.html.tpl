@@ -7,9 +7,15 @@
 </head>
 <body>
 <h1>Top Page</h1>
-<h3>Contents</h3>
+<h3>Post</h3>
+
 <hr>
-{{.}}
+<div>
+    {{range .}}
+    <h4>{{.NameText}}</h4>
+    <p>IMG={{.ImgPath}}</p>
+    {{end}}
+</div>
 
 </body>
 </html>
