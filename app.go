@@ -10,48 +10,21 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+var (
+	db *sql.DB
+)
+
 func main() {
-	http.HandleFunc("/", top)
-	http.ListenAndServe(":8080", nil)
-}
-
-func top(w http.ResponseWriter, r *http.Request) {
-	db, err := sql.Open("mysql", "root:mysql@tcp(127.0.0.1:33306)/test")
+	_db, err := sql.Open("mysql", "root:mysql@tcp(127.0.0.1:33306)/test")
 	if err != nil {
-		panic(err.Error())
-	}
-	defer db.Close()
-
-	if err := db.Ping(); err != nil {
 		fmt.Println("DB Error! --> ", err.Error())
 		os.Exit(1)
 	}
+	defer db.Close()
+	db = _db
 
-	tmp := template.Must(template.ParseFiles("template/top.html.tpl"))
-
-	rows, err := db.Query("SELECT users.id, users.name, posts.id, posts.img_name FROM users as users, posts as posts WHERE(users.id=posts.user_id) ORDER BY posts.created_at limit 50")
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-
-	var contents contents
-
-	for rows.Next() {
-		var userID int
-		var userName string
-		var postID int
-		var imgName string
-		if err := rows.Scan(&userID, &userName, &postID, &imgName); err != nil {
-			fmt.Println(err.Error())
-		}
-		//fmt.Println(userID, imgName)
-
-		contents = append(contents, makeContent(userName, imgName))
-	}
-
-	if err := tmp.ExecuteTemplate(w, "top.html.tpl", contents); err != nil {
-		fmt.Println(err.Error())
-	}
+	http.HandleFunc("/", top)
+	http.ListenAndServe(":8080", nil)
 }
 
 type content struct {
@@ -61,9 +34,32 @@ type content struct {
 
 type contents []*content
 
-func makeContent(name, path string) (making *content) {
-	making = new(content)
-	making.NameText = name
-	making.ImgPath = path
-	return making
+//topページ
+func top(w http.ResponseWriter, r *http.Request) {
+
+	tmp := template.Must(template.ParseFiles("template/top.html.tpl"))
+
+	rows, err := db.Query("SELECT name, img_name FROM posts INNER JOIN users ON posts.user_id=users.id ORDER BY posts.created_at limit 50")
+	if err != nil {
+		fmt.Println(err.Error())
+		w.WriteHeader(500)
+	}
+
+	var posts contents
+
+	for rows.Next() {
+		var userName string
+		var imgName string
+		if err := rows.Scan(&userName, &imgName); err != nil {
+			fmt.Println(err.Error())
+			w.WriteHeader(500)
+		}
+
+		posts = append(posts, &content{userName, imgName})
+	}
+
+	if err := tmp.ExecuteTemplate(w, "top.html.tpl", posts); err != nil {
+		fmt.Println(err.Error())
+		w.WriteHeader(500)
+	}
 }
