@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"os"
 	"strconv"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -16,9 +17,8 @@ func main() {
 	defer db.Close()
 
 	if err := db.Ping(); err != nil {
-		fmt.Println("DB Error!!!")
-	} else {
-		fmt.Println("DB OK.")
+		fmt.Println("DB Error! --> ", err.Error())
+		os.Exit(1)
 	}
 
 	addUser := 0
@@ -31,7 +31,7 @@ func main() {
 		INSERT INTO users(name, password) VALUES(?, ?)`, "user"+countUser, "pass"+countUser)
 
 		if err != nil {
-			panic(err.Error())
+			fmt.Println("Error! User didn't add.", err.Error())
 		}
 		addUser++
 	}
@@ -43,21 +43,23 @@ func main() {
 		INSERT INTO posts(user_id, img_name) VALUES(?, ?)`, i, "img_"+countPost)
 
 		if err != nil {
-			panic(err.Error())
+			fmt.Println("Error! Post didn't add.", err.Error())
 		}
 		addPost++
 	}
 
+	//commentの追加
 	for i := 0; i < 50; i++ {
 		countComment := strconv.Itoa(i)
 		_, err := db.Exec(`
 		INSERT INTO comments(post_id, user_id, comment_body) VALUES(?, ?, ?)`, i, i, "This is comment"+countComment)
 
 		if err != nil {
-			panic(err.Error())
+			fmt.Println("Error! Comments didn't add.", err.Error())
 		}
 		addComment++
 	}
-	fmt.Printf("added user: %d\n added post: %d\n added comments: %d\n", addUser, addPost, addComment)
+
+	fmt.Printf("Done...\n added user: %d\n added post: %d\n added comments: %d\n", addUser, addPost, addComment)
 
 }
