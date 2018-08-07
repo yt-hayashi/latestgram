@@ -27,12 +27,12 @@ func main() {
 	http.ListenAndServe(":8080", nil)
 }
 
-type content struct {
+type post struct {
 	NameText string
 	ImgPath  string
 }
 
-type contents []*content
+type contents []*post
 
 //topページ
 func top(w http.ResponseWriter, r *http.Request) {
@@ -55,7 +55,7 @@ func top(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(500)
 		}
 
-		posts = append(posts, &content{userName, imgName})
+		posts = append(posts, &post{userName, imgName})
 	}
 
 	if err := tmp.ExecuteTemplate(w, "top.html.tpl", posts); err != nil {
