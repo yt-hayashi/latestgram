@@ -8,6 +8,7 @@ import (
 	"os"
 
 	_ "github.com/go-sql-driver/mysql"
+	_ "golang.org/x/crypto/bcrypt"
 )
 
 var (
