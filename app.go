@@ -97,13 +97,14 @@ func signup(w http.ResponseWriter, r *http.Request) {
 		}
 
 		//DBに追加
-		if _, _err := db.Exec(`
-		INSERT INTO users(name, password) VALUES(?, ?)`, userName, hash); _err != nil {
-			fmt.Println("Error! User didn't add.", _err.Error())
+		if _, err := db.Exec(`
+		INSERT INTO users(name, password) VALUES(?, ?)`, userName, hash); err != nil {
+			fmt.Println("Error! User didn't add.", err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		http.Redirect(w, r, "/", 301)
+
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 
