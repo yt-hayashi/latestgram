@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"os"
 
+	"golang.org/x/crypto/bcrypt"
+
 	_ "github.com/go-sql-driver/mysql"
 	_ "golang.org/x/crypto/bcrypt"
 )
@@ -74,23 +76,45 @@ func top(w http.ResponseWriter, r *http.Request) {
 func signup(w http.ResponseWriter, r *http.Request) {
 	tmp := template.Must(template.ParseFiles("template/signup.html.tpl"))
 
+	message := "Please Input"
+
 	fmt.Println("method:", r.Method)
+	//レスポンスの解析
+	r.ParseForm()
+	userName := fmt.Sprint(r.Form["username"])
+	password := fmt.Sprint(r.Form["password"])
+
+	fmt.Println("username:", userName)
+	fmt.Println("password:", password)
+
 	if r.Method == http.MethodPost {
 		// signup時の処理
-		return
+		hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		if err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password)); err != nil {
+			fmt.Println("Hash Error!")
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		//DBに追加
+		_, _err := db.Exec(`
+		INSERT INTO users(name, password) VALUES(?, ?)`, userName, hash)
+
+		if _err != nil {
+			fmt.Println("Error! User didn't add.", err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		message = "SignUp Successed!"
 	}
 
 	// getのrender処理
 	fmt.Println("method:", r.Method)
-	//レスポンスの解析
-	r.ParseForm()
-	fmt.Println(r.Form)
-	for i, v := range r.Form {
-		fmt.Println("index:", i)
-		fmt.Println("value:", v)
-	}
 
-	message := "Please Input"
 	if err := tmp.ExecuteTemplate(w, "signup.html.tpl", message); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
