@@ -20,8 +20,9 @@ func main() {
 		fmt.Println("DB Error! --> ", err.Error())
 		os.Exit(1)
 	}
-	defer db.Close()
 	db = _db
+
+	defer db.Close()
 
 	http.HandleFunc("/", top)
 	http.ListenAndServe(":8080", nil)
@@ -42,7 +43,7 @@ func top(w http.ResponseWriter, r *http.Request) {
 	rows, err := db.Query("SELECT name, img_name FROM posts INNER JOIN users ON posts.user_id=users.id ORDER BY posts.created_at limit 50")
 	if err != nil {
 		fmt.Println(err.Error())
-		w.WriteHeader(500)
+		w.WriteHeader(http.StatusInternalServerError)
 	}
 
 	var posts contents
@@ -52,7 +53,7 @@ func top(w http.ResponseWriter, r *http.Request) {
 		var imgName string
 		if err := rows.Scan(&userName, &imgName); err != nil {
 			fmt.Println(err.Error())
-			w.WriteHeader(500)
+			w.WriteHeader(http.StatusInternalServerError)
 		}
 
 		posts = append(posts, &post{userName, imgName})
@@ -60,6 +61,6 @@ func top(w http.ResponseWriter, r *http.Request) {
 
 	if err := tmp.ExecuteTemplate(w, "top.html.tpl", posts); err != nil {
 		fmt.Println(err.Error())
-		w.WriteHeader(500)
+		w.WriteHeader(http.StatusInternalServerError)
 	}
 }
