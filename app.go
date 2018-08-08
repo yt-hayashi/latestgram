@@ -10,11 +10,14 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/gorilla/securecookie"
+	_ "github.com/gorilla/sessions"
 	_ "golang.org/x/crypto/bcrypt"
 )
 
 var (
-	db *sql.DB
+	db    *sql.DB
+	store *sessions.CookieStore = sessions.NewCookieStore(securecookie.GenerateRandomKey(64))
 )
 
 func main() {
@@ -174,6 +177,13 @@ func login(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		fmt.Println("Success!")
+		if session, err := getSession(r); err != nil {
+			fmt.Println(err.Error())
+			return
+		}
+		//userIDに変更する予定
+		session.Values["user_id"] = userName
+		session.Save(r, w)
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
