@@ -26,6 +26,7 @@ func main() {
 	defer db.Close()
 
 	http.HandleFunc("/", top)
+	http.HandleFunc("/signup", signup)
 	http.ListenAndServe(":8080", nil)
 }
 
@@ -64,6 +65,33 @@ func top(w http.ResponseWriter, r *http.Request) {
 
 	if err := tmp.ExecuteTemplate(w, "top.html.tpl", posts); err != nil {
 		fmt.Println(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+}
+
+//signupページ
+func signup(w http.ResponseWriter, r *http.Request) {
+	tmp := template.Must(template.ParseFiles("template/signup.html.tpl"))
+
+	fmt.Println("method:", r.Method)
+	if r.Method == http.MethodPost {
+		// signup時の処理
+		return
+	}
+
+	// getのrender処理
+	fmt.Println("method:", r.Method)
+	//レスポンスの解析
+	r.ParseForm()
+	fmt.Println(r.Form)
+	for i, v := range r.Form {
+		fmt.Println("index:", i)
+		fmt.Println("value:", v)
+	}
+
+	message := "Please Input"
+	if err := tmp.ExecuteTemplate(w, "signup.html.tpl", message); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
