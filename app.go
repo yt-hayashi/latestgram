@@ -81,9 +81,9 @@ func signup(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		//レスポンスの解析
 		r.ParseForm()
-		userName := fmt.Sprint(r.Form["username"])
-		password := fmt.Sprint(r.Form["password"])
-		if (userName == "[]") || (password == "[]") {
+		userName := fmt.Sprint(r.Form.Get("username"))
+		password := fmt.Sprint(r.Form.Get("password"))
+		if (userName == "") || (password == "") {
 			message = "Input Form!"
 			w.WriteHeader(http.StatusNotAcceptable)
 			if err := tmp.ExecuteTemplate(w, "signup.html.tpl", message); err != nil {
