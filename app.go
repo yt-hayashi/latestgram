@@ -44,6 +44,7 @@ func top(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	var posts contents
@@ -54,6 +55,7 @@ func top(w http.ResponseWriter, r *http.Request) {
 		if err := rows.Scan(&userName, &imgName); err != nil {
 			fmt.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
+			return
 		}
 
 		posts = append(posts, &post{userName, imgName})
@@ -62,5 +64,6 @@ func top(w http.ResponseWriter, r *http.Request) {
 	if err := tmp.ExecuteTemplate(w, "top.html.tpl", posts); err != nil {
 		fmt.Println(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 }
