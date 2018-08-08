@@ -8,7 +8,7 @@
 <h1>SignUp Page</h1>
 <hr>
 <h3>{{.}}</h3>
-<form action="/signup"　mthod="post">
+<form action="/signup" method="post">
     <p>Username</p>
     <p class="username">
      <input type="text" name="username" maxlength="32" autocomplete="OFF" />
