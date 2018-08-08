@@ -76,18 +76,14 @@ func top(w http.ResponseWriter, r *http.Request) {
 func signup(w http.ResponseWriter, r *http.Request) {
 	tmp := template.Must(template.ParseFiles("template/signup.html.tpl"))
 
-	message := "Please Input"
-
-	fmt.Println("method:", r.Method)
-	//レスポンスの解析
-	r.ParseForm()
-	userName := fmt.Sprint(r.Form["username"])
-	password := fmt.Sprint(r.Form["password"])
-
-	fmt.Println("username:", userName)
-	fmt.Println("password:", password)
+	message := ""
 
 	if r.Method == http.MethodPost {
+		//レスポンスの解析
+		r.ParseForm()
+		userName := fmt.Sprint(r.Form["username"])
+		password := fmt.Sprint(r.Form["password"])
+
 		// signup時の処理
 		hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 		if err != nil {
@@ -101,19 +97,15 @@ func signup(w http.ResponseWriter, r *http.Request) {
 		}
 
 		//DBに追加
-		_, _err := db.Exec(`
-		INSERT INTO users(name, password) VALUES(?, ?)`, userName, hash)
-
-		if _err != nil {
-			fmt.Println("Error! User didn't add.", err.Error())
+		if _, _err := db.Exec(`
+		INSERT INTO users(name, password) VALUES(?, ?)`, userName, hash); _err != nil {
+			fmt.Println("Error! User didn't add.", _err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		message = "SignUp Successed!"
+		http.Redirect(w, r, "/", 301)
+		return
 	}
-
-	// getのrender処理
-	fmt.Println("method:", r.Method)
 
 	if err := tmp.ExecuteTemplate(w, "signup.html.tpl", message); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
