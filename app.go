@@ -10,28 +10,60 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func main() {
-	db, err := sql.Open("mysql", "root:mysql@tcp(127.0.0.1:33306)/test")
-	if err != nil {
-		panic(err.Error())
-	}
-	defer db.Close()
+var (
+	db *sql.DB
+)
 
-	if err := db.Ping(); err != nil {
+func main() {
+	_db, err := sql.Open("mysql", "root:mysql@tcp(127.0.0.1:33306)/test")
+	if err != nil {
 		fmt.Println("DB Error! --> ", err.Error())
 		os.Exit(1)
 	}
+	db = _db
+
+	defer db.Close()
 
 	http.HandleFunc("/", top)
 	http.ListenAndServe(":8080", nil)
 }
 
+type post struct {
+	NameText string
+	ImgPath  string
+}
+
+type contents []*post
+
+//topページ
 func top(w http.ResponseWriter, r *http.Request) {
+
 	tmp := template.Must(template.ParseFiles("template/top.html.tpl"))
 
-	textBody := "This is Test."
-
-	if err := tmp.ExecuteTemplate(w, "top.html.tpl", textBody); err != nil {
+	rows, err := db.Query("SELECT name, img_name FROM posts INNER JOIN users ON posts.user_id=users.id ORDER BY posts.created_at limit 50")
+	if err != nil {
 		fmt.Println(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	var posts contents
+
+	for rows.Next() {
+		var userName string
+		var imgName string
+		if err := rows.Scan(&userName, &imgName); err != nil {
+			fmt.Println(err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		posts = append(posts, &post{userName, imgName})
+	}
+
+	if err := tmp.ExecuteTemplate(w, "top.html.tpl", posts); err != nil {
+		fmt.Println(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 }
