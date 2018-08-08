@@ -83,6 +83,14 @@ func signup(w http.ResponseWriter, r *http.Request) {
 		r.ParseForm()
 		userName := fmt.Sprint(r.Form["username"])
 		password := fmt.Sprint(r.Form["password"])
+		if (userName == "[]") || (password == "[]") {
+			message = "Input Form!"
+			w.WriteHeader(http.StatusNotAcceptable)
+			if err := tmp.ExecuteTemplate(w, "signup.html.tpl", message); err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+		}
 
 		// signup時の処理
 		hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
