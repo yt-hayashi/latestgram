@@ -29,6 +29,7 @@ func main() {
 
 	http.HandleFunc("/", top)
 	http.HandleFunc("/signup", signup)
+	http.HandleFunc("/login", login)
 	http.ListenAndServe(":8080", nil)
 }
 
@@ -117,6 +118,67 @@ func signup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := tmp.ExecuteTemplate(w, "signup.html.tpl", message); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+}
+
+//loginページ
+func login(w http.ResponseWriter, r *http.Request) {
+	tmp := template.Must(template.ParseFiles("template/login.html.tpl"))
+	message := ""
+
+	if r.Method == http.MethodPost {
+		//レスポンスの解析
+		r.ParseForm()
+		userName := fmt.Sprint(r.Form.Get("username"))
+		password := fmt.Sprint(r.Form.Get("password"))
+		if (userName == "") || (password == "") {
+			message = "Input Form!"
+			w.WriteHeader(http.StatusNotAcceptable)
+			if err := tmp.ExecuteTemplate(w, "login.html.tpl", message); err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			return
+		}
+
+		// login時の処理
+
+		//DBから読み出し
+		rows, err := db.Query("SELECT name, password FROM users WHERE name=?", userName)
+		if err != nil {
+			fmt.Println(err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		_userName := ""
+		_password := ""
+		for rows.Next() {
+			if err := rows.Scan(&_userName, &_password); err != nil {
+				fmt.Println(err.Error())
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+		}
+		//password確認
+		fmt.Println(_userName, password, _password)
+		if err := bcrypt.CompareHashAndPassword([]byte(_password), []byte(password)); err != nil {
+			fmt.Println(err.Error())
+			message = "Something is wrong."
+			w.WriteHeader(http.StatusNotAcceptable)
+			if err := tmp.ExecuteTemplate(w, "login.html.tpl", message); err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
+			return
+		}
+		fmt.Println("Success!")
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+
+	if err := tmp.ExecuteTemplate(w, "login.html.tpl", message); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
