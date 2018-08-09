@@ -69,7 +69,12 @@ func top(w http.ResponseWriter, r *http.Request) {
 
 	//session 読み出し
 	session, err := store.Get(r, "user-session")
-	fmt.Println(session.Values["userID"])
+	if err != nil {
+		fmt.Println(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	fmt.Print(session.Values["userID"])
 
 	if err := tmp.ExecuteTemplate(w, "top.html.tpl", posts); err != nil {
 		fmt.Println(err.Error())
@@ -131,15 +136,14 @@ func signup(w http.ResponseWriter, r *http.Request) {
 //loginページ
 func login(w http.ResponseWriter, r *http.Request) {
 	tmp := template.Must(template.ParseFiles("template/login.html.tpl"))
-	message := ""
 
 	if r.Method == http.MethodPost {
-		//レスポンスの解析
+		//リクエストの解析
 		r.ParseForm()
-		userName := fmt.Sprint(r.Form.Get("username"))
-		password := fmt.Sprint(r.Form.Get("password"))
-		if (userName == "") || (password == "") {
-			message = "Input Form!"
+		inputUserName := fmt.Sprint(r.Form.Get("username"))
+		inputPassword := fmt.Sprint(r.Form.Get("password"))
+		if (inputUserName == "") || (inputPassword == "") {
+			message := "Input Form!"
 			w.WriteHeader(http.StatusNotAcceptable)
 			if err := tmp.ExecuteTemplate(w, "login.html.tpl", message); err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
@@ -151,27 +155,27 @@ func login(w http.ResponseWriter, r *http.Request) {
 		// login時の処理
 
 		//DBから読み出し
-		rows, err := db.Query("SELECT id, name, password FROM users WHERE name=?", userName)
+		rows, err := db.Query("SELECT id, name, password FROM users WHERE name=?", inputUserName)
 		if err != nil {
 			fmt.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
-		_userName := ""
-		_password := ""
+		readUserName := ""
+		readPassword := ""
 		var id int
 		for rows.Next() {
-			if err := rows.Scan(&id, &_userName, &_password); err != nil {
+			if err := rows.Scan(&id, &readUserName, &readPassword); err != nil {
 				fmt.Println(err.Error())
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
 		}
 		//password確認
-		if err := bcrypt.CompareHashAndPassword([]byte(_password), []byte(password)); err != nil {
+		if err := bcrypt.CompareHashAndPassword([]byte(readPassword), []byte(inputPassword)); err != nil {
 			fmt.Println(err.Error())
-			message = "Something is wrong."
+			message := "Something is wrong."
 			w.WriteHeader(http.StatusNotAcceptable)
 			if err := tmp.ExecuteTemplate(w, "login.html.tpl", message); err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
@@ -186,14 +190,13 @@ func login(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		session.Values["userName"] = userName
 		session.Values["userID"] = id
 		// Save it before we write to the response/return from the handler.
 		session.Save(r, w)
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
-
+	message := ""
 	if err := tmp.ExecuteTemplate(w, "login.html.tpl", message); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
