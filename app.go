@@ -265,7 +265,7 @@ func upload(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		http.Redirect(w, r, "/top", http.StatusFound)
+		http.Redirect(w, r, "/", http.StatusFound)
 	}
 
 	if err := tmp.ExecuteTemplate(w, "upload.html.tpl", userName); err != nil {
@@ -309,6 +309,6 @@ func comment(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		http.Redirect(w, r, "/top", http.StatusFound)
+		http.Redirect(w, r, "/", http.StatusFound)
 	}
 }
