@@ -76,22 +76,26 @@ func top(w http.ResponseWriter, r *http.Request) {
 		}
 
 		//コメント読み込み
-		commentsRows, err := db.Query("SELECT comment_body FROM comments INNER JOIN posts ON comments.post_id=posts.id WHERE comments.post_id =?", postID)
+		commentsRows, err := db.Query("SELECT users.name ,comment_body FROM comments LEFT JOIN posts ON comments.post_id=posts.id LEFT JOIN users ON comments.user_id=users.id WHERE comments.post_id =?", postID)
 		if err != nil {
 			fmt.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
+		//このループが何故か複数回される？？
 		for commentsRows.Next() {
+			var commenterName string
 			var comment string
-			if err := rows.Scan(&comment); err != nil {
+			if err := commentsRows.Scan(&commenterName, &comment); err != nil {
+				fmt.Println("comment db Err!!!")
 				fmt.Println(err.Error())
 				w.WriteHeader(http.StatusInternalServerError)
-				//return
+				return
 			}
-			fmt.Println(comment)
-			comments = append(comments, comment)
+			//fmt.Println(comment)
+			commentStr := commenterName + ": " + comment
+			comments = append(comments, commentStr)
 		}
 
 		posts = append(posts, &post{postID, userName, imgName, comments})
