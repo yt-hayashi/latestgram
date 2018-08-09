@@ -10,14 +10,12 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/gorilla/securecookie"
-	_ "github.com/gorilla/sessions"
-	_ "golang.org/x/crypto/bcrypt"
+	"github.com/gorilla/sessions"
 )
 
 var (
 	db    *sql.DB
-	store *sessions.CookieStore = sessions.NewCookieStore(securecookie.GenerateRandomKey(64))
+	store = sessions.NewCookieStore([]byte("something-very-secret"))
 )
 
 func main() {
@@ -69,6 +67,10 @@ func top(w http.ResponseWriter, r *http.Request) {
 		posts = append(posts, &post{userName, imgName})
 	}
 
+	//session 読み出し
+	session, err := store.Get(r, "user-session")
+	fmt.Println(session.Values["userName"])
+
 	if err := tmp.ExecuteTemplate(w, "top.html.tpl", posts); err != nil {
 		fmt.Println(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
@@ -116,7 +118,7 @@ func signup(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		http.Redirect(w, r, "/", http.StatusSeeOther)
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
 
@@ -177,12 +179,15 @@ func login(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		fmt.Println("Success!")
-		if session, err := getSession(r); err != nil {
+		//session書き込み
+		session, err := store.Get(r, "user-session")
+		if err != nil {
 			fmt.Println(err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		//userIDに変更する予定
-		session.Values["user_id"] = userName
+		session.Values["userName"] = userName
+		// Save it before we write to the response/return from the handler.
 		session.Save(r, w)
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
