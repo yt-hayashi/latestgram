@@ -35,6 +35,7 @@ func main() {
 	http.HandleFunc("/login", login)
 	http.HandleFunc("/upload", upload)
 	http.HandleFunc("/comment", comment)
+	http.Handle("/img/", http.FileServer(http.Dir("./")))
 	http.ListenAndServe(":8080", nil)
 }
 
@@ -71,18 +72,8 @@ func top(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-
 		posts = append(posts, &post{postID, userName, imgName})
 	}
-
-	//session 読み出し
-	session, err := store.Get(r, "user-session")
-	if err != nil {
-		fmt.Println(err.Error())
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	fmt.Print(session.Values["userID"])
 
 	if err := tmp.ExecuteTemplate(w, "top.html.tpl", posts); err != nil {
 		fmt.Println(err.Error())
@@ -259,7 +250,7 @@ func upload(w http.ResponseWriter, r *http.Request) {
 
 		//DBに書き込み
 		if _, err := db.Exec(`
-		INSERT INTO posts(user_id, img_name) VALUES(?, ?)`, userID, imgName); err != nil {
+		INSERT INTO posts(user_id, img_name) VALUES(?, ?)`, userID, imgPath); err != nil {
 			fmt.Println("Error! Post didn't add.", err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			return
