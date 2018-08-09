@@ -1,38 +1,56 @@
 <!DOCTYPE html>
 <html>
-<head>
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<title>Top</title>
-<meta charset="utf-8">
-</head>
-<body>
-<h1>Top Page</h1>
-<h3>Post</h3>
-<input type="button" onclick="location.href='/signup'"value="SignUp">
-<input type="button" onclick="location.href='/login'"value="Login">
-<input type="button" onclick="location.href='/upload'"value="Upload">
 
-<hr>
-<div>
-    {{range .}}
-    <div class="post">
-        <img src={{.ImgPath}} alt="post_img" width="50%" height="50%">
-        <h4>UserName:{{.NameText}}</h4>
-        <p>Comments</p>
-        {{range $var := .Comments}}
-            <p>{{$var}}</p>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Top</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+        crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+        crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <h1>Top Page</h1>
+    <h3>Post</h3>
+    <input type="button" onclick="location.href='/signup'" value="SignUp">
+    <input type="button" onclick="location.href='/login'" value="Login">
+    <input type="button" onclick="location.href='/upload'" value="Upload">
+
+    <hr>
+    <div>
+        {{range .}}
+        <div class="card" style="width: 25rem;">
+            <img class="card-img-top" src={{.ImgPath}} alt="post_img">
+            <div class="card-body">
+                <h5 class="card-title">Post User: {{.NameText}}</h5>
+                <p class="card-text">Comments</p>
+                <ul class="list-group list-group-flush">
+                    {{range $var := .Comments}}
+                    <li class="list-group-item">{{$var}}</li>
+                    {{end}}
+                </ul>
+
+                <form action="/comment?id={{.PostID}}" method="post" class="input-group mb-3">
+                    <input type="text" name="comment_text" class="form-control" placeholder="Add comment..." aria-label="Add comment..."
+                        aria-describedby="button-addon2" autocomplete="OFF">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Post</button>
+                          </div>
+
+                </form>
+
+            </div>
+        </div>
         {{end}}
-        <form action="/comment?id={{.PostID}}" method="post">
-            <p class="comment_input">
-             <input type="text" name="comment_text" maxlength="100" autocomplete="OFF" />
-            </p>
-            <p class="submit">
-                <input type="submit" value="Add comment" />
-            </p>
-        </form>
-    </div>
-    {{end}}
-</div>
 
 </body>
+
 </html>
