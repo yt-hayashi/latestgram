@@ -8,6 +8,9 @@
 <body>
 <h1>Top Page</h1>
 <h3>Post</h3>
+<input type="button" onclick="location.href='/signup'"value="SignUp">
+<input type="button" onclick="location.href='/login'"value="Login">
+<input type="button" onclick="location.href='/upload'"value="Upload">
 
 <hr>
 <div>
