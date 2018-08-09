@@ -34,10 +34,12 @@ func main() {
 	http.HandleFunc("/signup", signup)
 	http.HandleFunc("/login", login)
 	http.HandleFunc("/upload", upload)
+	http.HandleFunc("/comment", comment)
 	http.ListenAndServe(":8080", nil)
 }
 
 type post struct {
+	PostID   int
 	NameText string
 	ImgPath  string
 }
@@ -49,7 +51,7 @@ func top(w http.ResponseWriter, r *http.Request) {
 
 	tmp := template.Must(template.ParseFiles("template/top.html.tpl"))
 
-	rows, err := db.Query("SELECT name, img_name FROM posts INNER JOIN users ON posts.user_id=users.id ORDER BY posts.created_at limit 50")
+	rows, err := db.Query("SELECT posts.id, name, img_name FROM posts INNER JOIN users ON posts.user_id=users.id ORDER BY posts.id  DESC limit 50")
 	if err != nil {
 		fmt.Println(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
@@ -59,15 +61,18 @@ func top(w http.ResponseWriter, r *http.Request) {
 	var posts contents
 
 	for rows.Next() {
-		var userName string
-		var imgName string
-		if err := rows.Scan(&userName, &imgName); err != nil {
+		var (
+			postID   int
+			userName string
+			imgName  string
+		)
+		if err := rows.Scan(&postID, &userName, &imgName); err != nil {
 			fmt.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
-		posts = append(posts, &post{userName, imgName})
+		posts = append(posts, &post{postID, userName, imgName})
 	}
 
 	//session 読み出し
@@ -266,5 +271,44 @@ func upload(w http.ResponseWriter, r *http.Request) {
 	if err := tmp.ExecuteTemplate(w, "upload.html.tpl", userName); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
+	}
+}
+
+func comment(w http.ResponseWriter, r *http.Request) {
+	//session 読み出し
+	session, err := store.Get(r, "user-session")
+	if err != nil {
+		fmt.Println(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	userID := session.Values["userID"]
+	//ログインしてない場合はリダイレクト
+	if userID == nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	//URLのパラメーターの解析
+	param, ok := r.URL.Query()["id"]
+	if !ok || len(param[0]) < 1 {
+		fmt.Println(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	postID := param[0]
+
+	if r.Method == http.MethodPost {
+		r.ParseForm()
+		commentBody := fmt.Sprint(r.Form.Get("comment_text"))
+		fmt.Print(postID)
+		//DBに書き込み
+		if _, err := db.Exec(`
+		INSERT INTO comments(post_id, user_id, comment_body) VALUES(?, ?, ?)`, postID, userID, commentBody); err != nil {
+			fmt.Println("Error! Post didn't add.", err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		http.Redirect(w, r, "/top", http.StatusFound)
 	}
 }
