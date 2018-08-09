@@ -14,22 +14,25 @@
         crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
         crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="./img/style.css">
 </head>
 
 <body>
     <h1>Upload Page</h1>
-    <h3>YourName: {{.}}</h3>
+    <main>
+        <h3>YourName: {{.}}</h3>
 
-    <hr>
-    <form action="/upload" enctype="multipart/form-data" method="post" class="input-group mb-3">
-        <div class="custom-file">
-            <input type="file" name="upload" id="upload" multiple="multiple" class="custom-file-input" id="inputGroupFile02">
-            <label class="custom-file-label" for="inputGroupFile02" aria-describedby="inputGroupFileAddon02"></label>
-        </div>
-        <div class="input-group-append">
-            <input type="submit" class="input-group-text" id="inputGroupFileAddon02" value="Upload">
-        </div>
-    </form>
+        <hr>
+        <form action="/upload" enctype="multipart/form-data" method="post" class="input-group mb-3">
+            <div class="custom-file">
+                <input type="file" name="upload" id="upload" multiple="multiple" class="custom-file-input" id="inputGroupFile02">
+                <label class="custom-file-label" for="inputGroupFile02" aria-describedby="inputGroupFileAddon02"></label>
+            </div>
+            <div class="input-group-append">
+                <input type="submit" class="input-group-text" id="inputGroupFileAddon02" value="Upload">
+            </div>
+        </form>
+    </main>
 </body>
 
 </html>

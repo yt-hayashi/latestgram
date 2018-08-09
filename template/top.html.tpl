@@ -15,42 +15,44 @@
         crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
         crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="./img/style.css">
 </head>
 
 <body>
-    <h1>Top Page</h1>
-    <h3>Post</h3>
-    <input type="button" onclick="location.href='/signup'" value="SignUp">
-    <input type="button" onclick="location.href='/login'" value="Login">
-    <input type="button" onclick="location.href='/upload'" value="Upload">
+    <h1>Latestgram</h1>
+    <main>
+        <h2>Top Page</h2>
+        <h3>Post</h3>
+        <input class="btn btn-primary btn-lg" type="button" onclick="location.href='/signup'" value="SignUp"></input>
+        <input class="btn btn-primary btn-lg" type="button" onclick="location.href='/login'" value="Login"></input>
+        <input class="btn btn-success btn-lg" type="button" onclick="location.href='/upload'" value="Upload"></input>
+        <hr>
+        <div class="card-columns">
+            {{range .}}
+            <div class="card" style="width: 25rem;">
+                <img class="card-img-top" src={{.ImgPath}} alt="post_img">
+                <div class="card-body">
+                    <h5 class="card-title">Post User: {{.NameText}}</h5>
+                    <p class="card-text">Comments</p>
+                    <ul class="list-group list-group-flush">
+                        {{range $var := .Comments}}
+                        <li class="list-group-item">{{$var}}</li>
+                        {{end}}
+                    </ul>
 
-    <hr>
-    <div>
-        {{range .}}
-        <div class="card" style="width: 25rem;">
-            <img class="card-img-top" src={{.ImgPath}} alt="post_img">
-            <div class="card-body">
-                <h5 class="card-title">Post User: {{.NameText}}</h5>
-                <p class="card-text">Comments</p>
-                <ul class="list-group list-group-flush">
-                    {{range $var := .Comments}}
-                    <li class="list-group-item">{{$var}}</li>
-                    {{end}}
-                </ul>
-
-                <form action="/comment?id={{.PostID}}" method="post" class="input-group mb-3">
-                    <input type="text" name="comment_text" class="form-control" placeholder="Add comment..." aria-label="Add comment..."
-                        aria-describedby="button-addon2" autocomplete="OFF">
+                    <form action="/comment?id={{.PostID}}" method="post" class="input-group mb-3">
+                        <input type="text" name="comment_text" class="form-control" placeholder="Add comment..." aria-label="Add comment..." aria-describedby="button-addon2"
+                            autocomplete="OFF">
                         <div class="input-group-append">
                             <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Post</button>
-                          </div>
+                        </div>
 
-                </form>
+                    </form>
 
+                </div>
             </div>
-        </div>
-        {{end}}
-
+            {{end}}
+    </main>
 </body>
 
 </html>

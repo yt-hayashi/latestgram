@@ -14,35 +14,37 @@
         crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
         crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="./img/style.css">
 </head>
 
 <body>
     <h1>Login Page</h1>
-    <hr>
-    <div class="alert alert-warning" role="alert" id="alert">
-        {{.}}
-    </div>
-    <form action="/login" method="post">
-        <div class="form-group row">
-            <label class="col-sm-2 col-form-label">User Name</label>
-            <div class="col-sm-10">
-                <input type="text" class="form-control" name="username" placeholder="User Name" autocomplete="OFF">
-            </div>
+    <main>
+        <hr>
+        <div class="alert alert-warning" role="alert" id="alert">
+            {{.}}
         </div>
-        <div class="form-group row">
-            <label for="inputPassword" class="col-sm-2 col-form-label">Password</label>
-            <div class="col-sm-10">
-                <input type="password" class="form-control" name="password" placeholder="Password">
+        <form action="/login" method="post">
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label">User Name</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name="username" placeholder="User Name" autocomplete="OFF">
+                </div>
             </div>
-        </div>
-        <button type="submit" class="btn btn-primary mb-2">Login!</button>
-    </form>
-    <script>
-        if (document.getElementById('alert').textContent ==false) {
-            $('.alert').remove();
-        };
-    </script>
-
+            <div class="form-group row">
+                <label for="inputPassword" class="col-sm-2 col-form-label">Password</label>
+                <div class="col-sm-10">
+                    <input type="password" class="form-control" name="password" placeholder="Password">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary mb-2">Login!</button>
+        </form>
+        <script>
+            if (document.getElementById('alert').textContent == false) {
+                $('.alert').remove();
+            };
+        </script>
+    </main>
 </body>
 
 </html>
