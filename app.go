@@ -52,7 +52,7 @@ func top(w http.ResponseWriter, r *http.Request) {
 
 	tmp := template.Must(template.ParseFiles("template/top.html.tpl"))
 
-	rows, err := db.Query("SELECT posts.id, name, img_name FROM posts INNER JOIN users ON posts.user_id=users.id ORDER BY posts.id  DESC limit 50")
+	rows, err := db.Query("SELECT posts.id, name, img_name FROM posts INNER JOIN users ON posts.user_id=users.id ORDER BY posts.id DESC limit 50")
 	if err != nil {
 		fmt.Println(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
