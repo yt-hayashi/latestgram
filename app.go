@@ -168,7 +168,6 @@ func login(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		//password確認
-		fmt.Println(_userName, password, _password)
 		if err := bcrypt.CompareHashAndPassword([]byte(_password), []byte(password)); err != nil {
 			fmt.Println(err.Error())
 			message = "Something is wrong."
