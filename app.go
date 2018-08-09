@@ -35,6 +35,7 @@ func main() {
 	http.HandleFunc("/login", login)
 	http.HandleFunc("/upload", upload)
 	http.HandleFunc("/comment", comment)
+	http.HandleFunc("/logout", logout)
 	http.Handle("/img/", http.FileServer(http.Dir("./")))
 	http.ListenAndServe(":8080", nil)
 }
@@ -246,7 +247,7 @@ func upload(w http.ResponseWriter, r *http.Request) {
 	userID, ok := session.Values["userID"]
 	userName := fmt.Sprint(session.Values["userName"])
 
-	if ok == false {
+	if (ok == false) || (userID == "") {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
@@ -327,4 +328,20 @@ func comment(w http.ResponseWriter, r *http.Request) {
 		}
 		http.Redirect(w, r, "/", http.StatusFound)
 	}
+}
+
+//logoutの処理
+func logout(w http.ResponseWriter, r *http.Request) {
+	session, err := store.Get(r, "user-session")
+	if err != nil {
+		fmt.Println(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	session.Values["userID"] = ""
+	session.Values["userName"] = ""
+	// Save it before we write to the response/return from the handler.
+	session.Save(r, w)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+	return
 }

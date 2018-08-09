@@ -26,6 +26,7 @@
         <input class="btn btn-primary btn-lg" type="button" onclick="location.href='/signup'" value="SignUp"></input>
         <input class="btn btn-primary btn-lg" type="button" onclick="location.href='/login'" value="Login"></input>
         <input class="btn btn-success btn-lg" type="button" onclick="location.href='/upload'" value="Upload"></input>
+        <input class="btn btn-danger btn-lg" type="button" onclick="location.href='/logout'" value="Logout"></input>
         <hr>
         <div class="card-columns">
             {{range .}}
