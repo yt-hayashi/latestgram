@@ -15,8 +15,10 @@
 <hr>
 <div>
     {{range .}}
-    <h4>{{.NameText}}</h4>
-    <p>IMG={{.ImgPath}}</p>
+    <div class="post">
+        <img src={{.ImgPath}} alt="post_img">
+        <h4>{{.NameText}}</h4>
+    </div>
     {{end}}
 </div>
 
