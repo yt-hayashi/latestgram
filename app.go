@@ -130,6 +130,11 @@ func signup(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
+		//ユーザー名のディレクトリを作成
+		dirPath := "./img/" + userName
+		if err := os.Mkdir(dirPath, 0777); err != nil {
+			fmt.Println(err.Error())
+		}
 
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -237,12 +242,6 @@ func upload(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		defer imgFile.Close()
-
-		//ユーザー名のディレクトリを作成
-		dirPath := "./img/" + userName
-		if err := os.Mkdir(dirPath, 0777); err != nil {
-			fmt.Println(err.Error())
-		}
 
 		//ファイルの作成
 		nowTime := fmt.Sprint(time.Now().Unix())
