@@ -4,8 +4,10 @@ import (
 	"database/sql"
 	"fmt"
 	"html/template"
+	"io"
 	"net/http"
 	"os"
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
 
@@ -31,6 +33,7 @@ func main() {
 	http.HandleFunc("/", top)
 	http.HandleFunc("/signup", signup)
 	http.HandleFunc("/login", login)
+	http.HandleFunc("/upload", upload)
 	http.ListenAndServe(":8080", nil)
 }
 
@@ -191,6 +194,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		session.Values["userID"] = id
+		session.Values["userName"] = readUserName
 		// Save it before we write to the response/return from the handler.
 		session.Save(r, w)
 		http.Redirect(w, r, "/", http.StatusSeeOther)
@@ -198,6 +202,68 @@ func login(w http.ResponseWriter, r *http.Request) {
 	}
 	message := ""
 	if err := tmp.ExecuteTemplate(w, "login.html.tpl", message); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+}
+
+func upload(w http.ResponseWriter, r *http.Request) {
+	tmp := template.Must(template.ParseFiles("template/upload.html.tpl"))
+	//session 読み出し
+	session, err := store.Get(r, "user-session")
+	if err != nil {
+		fmt.Println(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	userID := session.Values["userID"]
+	userName := fmt.Sprint(session.Values["userName"])
+
+	if userID == nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	//画像の受け取り
+	if r.Method == http.MethodPost {
+		imgFile, _, err := r.FormFile("upload")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer imgFile.Close()
+
+		//ユーザー名のディレクトリを作成
+		dirPath := "./img/" + userName
+		if err := os.Mkdir(dirPath, 0777); err != nil {
+			fmt.Println(err.Error())
+		}
+
+		//ファイルの作成
+		nowTime := fmt.Sprint(time.Now().Unix())
+		imgName := nowTime + ".jpg"
+		imgPath := "./img/" + userName + "/" + imgName
+
+		f, err := os.Create(imgPath)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer f.Close()
+
+		io.Copy(f, imgFile)
+
+		//DBに書き込み
+		if _, err := db.Exec(`
+		INSERT INTO posts(user_id, img_name) VALUES(?, ?)`, userID, imgName); err != nil {
+			fmt.Println("Error! Post didn't add.", err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		http.Redirect(w, r, "/top", http.StatusFound)
+	}
+
+	if err := tmp.ExecuteTemplate(w, "upload.html.tpl", userName); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
