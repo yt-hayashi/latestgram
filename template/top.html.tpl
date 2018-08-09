@@ -16,7 +16,7 @@
 <div>
     {{range .}}
     <div class="post">
-        <img src={{.ImgPath}} alt="post_img">
+        <img src={{.ImgPath}} alt="post_img" width="50%" height="50%">
         <h4>UserName:{{.NameText}}</h4>
         <p>Comments</p>
         {{range $var := .Comments}}
