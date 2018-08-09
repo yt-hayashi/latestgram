@@ -217,10 +217,10 @@ func upload(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	userID := session.Values["userID"]
+	userID, ok := session.Values["userID"]
 	userName := fmt.Sprint(session.Values["userName"])
 
-	if userID == nil {
+	if ok == false {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
@@ -272,9 +272,9 @@ func comment(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	userID := session.Values["userID"]
+	userID, ok := session.Values["userID"]
 	//ログインしてない場合はリダイレクト
-	if userID == nil {
+	if ok == false {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
