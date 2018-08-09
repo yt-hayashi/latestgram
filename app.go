@@ -43,6 +43,7 @@ type post struct {
 	PostID   int
 	NameText string
 	ImgPath  string
+	Comments []string
 }
 
 type contents []*post
@@ -66,13 +67,34 @@ func top(w http.ResponseWriter, r *http.Request) {
 			postID   int
 			userName string
 			imgName  string
+			comments []string
 		)
 		if err := rows.Scan(&postID, &userName, &imgName); err != nil {
 			fmt.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		posts = append(posts, &post{postID, userName, imgName})
+
+		//コメント読み込み
+		commentsRows, err := db.Query("SELECT comment_body FROM comments INNER JOIN posts ON comments.post_id=posts.id WHERE comments.post_id =?", postID)
+		if err != nil {
+			fmt.Println(err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		for commentsRows.Next() {
+			var comment string
+			if err := rows.Scan(&comment); err != nil {
+				fmt.Println(err.Error())
+				w.WriteHeader(http.StatusInternalServerError)
+				//return
+			}
+			fmt.Println(comment)
+			comments = append(comments, comment)
+		}
+
+		posts = append(posts, &post{postID, userName, imgName, comments})
 	}
 
 	if err := tmp.ExecuteTemplate(w, "top.html.tpl", posts); err != nil {
