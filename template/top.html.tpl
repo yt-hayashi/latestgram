@@ -18,6 +18,10 @@
     <div class="post">
         <img src={{.ImgPath}} alt="post_img">
         <h4>UserName:{{.NameText}}</h4>
+        <p>Comments</p>
+        {{range $var := .Comments}}
+            <p>{{$var}}</p>
+        {{end}}
         <form action="/comment?id={{.PostID}}" method="post">
             <p class="comment_input">
              <input type="text" name="comment_text" maxlength="100" autocomplete="OFF" />
