@@ -255,11 +255,20 @@ func upload(w http.ResponseWriter, r *http.Request) {
 
 	//画像の受け取り
 	if r.Method == http.MethodPost {
-		imgFile, _, err := r.FormFile("upload")
+		imgFile, header, err := r.FormFile("upload")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+
+		if header.Filename == "" {
+			if err := tmp.ExecuteTemplate(w, "upload.html.tpl", userName); err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			return
+		}
+
 		defer imgFile.Close()
 
 		//ファイルの作成
