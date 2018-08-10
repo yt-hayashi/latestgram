@@ -37,7 +37,8 @@
                     <p class="card-text">Comments</p>
                     <ul class="list-group list-group-flush">
                         {{range $var := .Comments}}
-                        <li class="list-group-item">{{$var}}</li>
+                        <li class="list-group-item">{{$var}}   <input class="btn btn-light" type="button" onclick="location.href='/logout'" value="Delete"></li>
+                        
                         {{end}}
                     </ul>
 

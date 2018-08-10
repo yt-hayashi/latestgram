@@ -22,7 +22,7 @@ var (
 )
 
 func main() {
-	_db, err := sql.Open("mysql", "root:mysql@tcp(127.0.0.1:33306)/test")
+	_db, err := sql.Open("mysql", "root:mysql@tcp(127.0.0.1:3306)/test")
 	if err != nil {
 		fmt.Println("DB Error! --> ", err.Error())
 		os.Exit(1)
@@ -57,7 +57,7 @@ func top(w http.ResponseWriter, r *http.Request) {
 
 	tmp := template.Must(template.ParseFiles("template/top.html.tpl"))
 
-	rows, err := db.Query("SELECT posts.id, name, img_name FROM posts INNER JOIN users ON posts.user_id=users.id ORDER BY posts.id ASC limit 50")
+	rows, err := db.Query("SELECT posts.id, name, img_name FROM posts INNER JOIN users ON posts.user_id=users.id ORDER BY posts.id DESC limit 50")
 	if err != nil {
 		log.Println("querry request", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
