@@ -246,12 +246,11 @@ func upload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	userID, ok := session.Values["userID"]
-	userName := fmt.Sprint(session.Values["userName"])
-
 	if !ok {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
+	userName := fmt.Sprint(session.Values["userName"])
 
 	//画像の受け取り
 	if r.Method == http.MethodPost {
@@ -272,16 +271,14 @@ func upload(w http.ResponseWriter, r *http.Request) {
 		defer imgFile.Close()
 
 		//ファイルの作成
-		nowTime := fmt.Sprint(time.Now().Unix())
-		imgName := nowTime + ".jpg"
-		imgPath := "./img/" + userName + "/" + imgName
+		imgPath := fmt.Sprintf("./img/%s/%d.jpg", userName, time.Now().Unix())
 
 		f, err := os.Create(imgPath)
+		defer f.Close()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		defer f.Close()
 
 		io.Copy(f, imgFile)
 
