@@ -25,7 +25,7 @@
         <hr>
         <form action="/upload" enctype="multipart/form-data" method="post" class="input-group mb-3">
             <div class="custom-file">
-                <input type="file" name="upload" id="upload" multiple="multiple" class="custom-file-input" id="inputGroupFile02">
+                <input type="file" name="upload" id="upload" multiple="multiple" class="custom-file-input" id="inputGroupFile02" required>
                 <label class="custom-file-label" for="inputGroupFile02" aria-describedby="inputGroupFileAddon02"></label>
             </div>
             <div class="input-group-append">

@@ -42,8 +42,7 @@
                     </ul>
 
                     <form action="/comment?id={{.PostID}}" method="post" class="input-group mb-3">
-                        <input type="text" name="comment_text" class="form-control" placeholder="Add comment..." aria-label="Add comment..." aria-describedby="button-addon2"
-                            autocomplete="OFF">
+                        <input type="text" name="comment_text" class="form-control" placeholder="Add comment..." aria-label="Add comment..." aria-describedby="button-addon2" autocomplete="OFF" required>
                         <div class="input-group-append">
                             <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Post</button>
                         </div>
@@ -53,7 +52,7 @@
                 </div>
             </div>
             {{end}}
-    </main>
+    </main>Ω
 </body>
 
 </html>
