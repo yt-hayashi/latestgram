@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -21,7 +22,7 @@ var (
 )
 
 func main() {
-	_db, err := sql.Open("mysql", "root:mysql@tcp(127.0.0.1:33306)/test")
+	_db, err := sql.Open("mysql", "root:mysql@tcp(127.0.0.1:3306)/test")
 	if err != nil {
 		fmt.Println("DB Error! --> ", err.Error())
 		os.Exit(1)
@@ -35,6 +36,7 @@ func main() {
 	http.HandleFunc("/login", login)
 	http.HandleFunc("/upload", upload)
 	http.HandleFunc("/comment", comment)
+	http.HandleFunc("/commentdel", commentdel)
 	http.HandleFunc("/logout", logout)
 	http.Handle("/img/", http.FileServer(http.Dir("./")))
 	http.Handle("/css/", http.FileServer(http.Dir("./")))
@@ -57,7 +59,7 @@ func top(w http.ResponseWriter, r *http.Request) {
 
 	rows, err := db.Query("SELECT posts.id, name, img_name FROM posts INNER JOIN users ON posts.user_id=users.id ORDER BY posts.id DESC limit 50")
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Println("querry request", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -72,7 +74,7 @@ func top(w http.ResponseWriter, r *http.Request) {
 			comments []string
 		)
 		if err := rows.Scan(&postID, &userName, &imgName); err != nil {
-			fmt.Println(err.Error())
+			log.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -80,7 +82,7 @@ func top(w http.ResponseWriter, r *http.Request) {
 		//コメント読み込み
 		commentsRows, err := db.Query("SELECT users.name ,comment_body FROM comments LEFT JOIN posts ON comments.post_id=posts.id LEFT JOIN users ON comments.user_id=users.id WHERE comments.post_id =?", postID)
 		if err != nil {
-			fmt.Println(err.Error())
+			log.Println("read comment", err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -91,7 +93,7 @@ func top(w http.ResponseWriter, r *http.Request) {
 			var comment string
 			if err := commentsRows.Scan(&commenterName, &comment); err != nil {
 				fmt.Println("comment db Err!!!")
-				fmt.Println(err.Error())
+				log.Println(err.Error())
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
@@ -362,4 +364,41 @@ func logout(w http.ResponseWriter, r *http.Request) {
 	session.Save(r, w)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 	return
+}
+
+func commentdel(w http.ResponseWriter, r *http.Request) {
+	session, err := store.Get(r, "user-session")
+	if err != nil {
+		fmt.Println(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	_, ok := session.Values["userID"]
+	//ログインしてない場合はリダイレクト
+	if ok == false {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	//URLのパラメーターの解析
+	param, ok := r.URL.Query()["id"]
+	if !ok || param[0] == "" {
+		fmt.Println(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	commentID := param[0]
+
+	//if r.Method == http.MethodPost {
+	r.ParseForm()
+
+	fmt.Print(commentID)
+	//DBに書き込み
+	if _, err := db.Exec(`DELETE FROM comments WHERE id =?`, commentID); err != nil {
+		fmt.Println("Error! Comment didn't delete.", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	http.Redirect(w, r, "/", http.StatusFound)
+	//}
 }
