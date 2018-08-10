@@ -318,7 +318,7 @@ func comment(w http.ResponseWriter, r *http.Request) {
 
 	//URLのパラメーターの解析
 	param, ok := r.URL.Query()["id"]
-	if !ok || len(param[0]) < 1 {
+	if !ok || param[0] == "" {
 		fmt.Println(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
