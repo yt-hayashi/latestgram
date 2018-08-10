@@ -325,6 +325,17 @@ func comment(w http.ResponseWriter, r *http.Request) {
 	}
 	postID := param[0]
 
+	commnenNum := 0
+	if err := db.QueryRow(`SELECT COUNT(*) FROM comments INNER JOIN posts ON comments.post_id=posts.id WHERE comments.post_id =?`, postID).Scan(&commnenNum); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	if commnenNum == 5 {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+
 	if r.Method == http.MethodPost {
 		r.ParseForm()
 		commentBody := fmt.Sprint(r.Form.Get("comment_text"))
