@@ -52,7 +52,7 @@
                 </div>
             </div>
             {{end}}
-    </main>Ω
+    </main>
 </body>
 
 </html>
