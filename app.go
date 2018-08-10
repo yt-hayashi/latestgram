@@ -248,7 +248,7 @@ func upload(w http.ResponseWriter, r *http.Request) {
 	userID, ok := session.Values["userID"]
 	userName := fmt.Sprint(session.Values["userName"])
 
-	if (ok == false) || (userID == "") {
+	if !ok {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
@@ -261,7 +261,7 @@ func upload(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if header.Filename == "" {
+		if header.Size == 0 {
 			if err := tmp.ExecuteTemplate(w, "upload.html.tpl", userName); err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				return
