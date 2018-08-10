@@ -37,6 +37,7 @@ func main() {
 	http.HandleFunc("/comment", comment)
 	http.HandleFunc("/logout", logout)
 	http.Handle("/img/", http.FileServer(http.Dir("./")))
+	http.Handle("/css/", http.FileServer(http.Dir("./")))
 	http.ListenAndServe(":8080", nil)
 }
 
